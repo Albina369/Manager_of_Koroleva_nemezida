@@ -1,13 +1,10 @@
-import requests, os, time, threading
+import requests, os
 from flask import Flask, request
 
 app = Flask(__name__)
 
 BOT_TOKEN = "8782847447:AAFaOn42abfoCErNIFNmNYMy9Et8sbZ6OWs"   # ← замени на токен
 GROUP_CHAT_ID = -5260784715  # ID твоей группы
-
-# Словарь: username клиента → его chat_id (чтобы позже отвечать)
-clients = {}
 
 def send_message(chat_id, text):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -16,36 +13,19 @@ def send_message(chat_id, text):
     except:
         pass
 
-def listen():
-    offset = 0
-    while True:
-        try:
-            r = requests.get(
-                f"https://api.telegram.org/bot{BOT_TOKEN}/getUpdates",
-                params={"offset": offset, "timeout": 30}
-            ).json()
-            for upd in r.get("result", []):
-                offset = upd["update_id"] + 1
-                msg = upd.get("message")
-                if not msg or "text" not in msg:
-                    continue
-
-                chat_id = msg["chat"]["id"]
-                text = msg["text"].strip()
-                username = msg["from"].get("username", "unknown")
-
-                # Если клиент пишет боту в ЛС — сразу пересылаем в группу
-                if chat_id > 0:
-                    clients[username] = chat_id  # запоминаем для ответа
-                    send_message(GROUP_CHAT_ID, f"📩 От @{username}:\n{text}")
-        except:
-            pass
-        time.sleep(1)
-
-threading.Thread(target=listen, daemon=True).start()
-
 @app.route("/webhook", methods=["POST"])
 def webhook():
+    data = request.json
+    if "message" in data and "text" in data["message"]:
+        msg = data["message"]
+        chat_id = msg["chat"]["id"]
+        text = msg["text"].strip()
+        username = msg["from"].get("username", "unknown")
+
+        # Пересылаем любое личное сообщение боту в группу
+        if chat_id > 0:
+            send_message(GROUP_CHAT_ID, f"📩 От @{username}:\n{text}")
+
     return "ok", 200
 
 @app.route("/")
