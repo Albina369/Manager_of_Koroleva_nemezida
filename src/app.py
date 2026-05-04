@@ -3,15 +3,14 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
-# Вставь сюда свой токен, который дал BotFather
-BOT_TOKEN = "8782847447:AAFaOn42abfoCErNIFNmNYMy9Et8sbZ6OWs"
+BOT_TOKEN = "8782847447:AAFaOn42abfoCErNIFNmNYMy9Et8sbZ6OWs"   # ← вставь свой токен
 
 def send_message(chat_id, text):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     try:
         requests.post(url, json={"chat_id": chat_id, "text": text}, timeout=10)
-    except Exception as e:
-        print(f"Send error: {e}")
+    except:
+        pass
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
@@ -19,9 +18,13 @@ def webhook():
     if "message" in data and "text" in data["message"]:
         msg = data["message"]
         chat_id = msg["chat"]["id"]
-        text = msg["text"]
-        username = msg["chat"].get("username", "unknown")
-        send_message(chat_id, f"Получено, @{username}. Ответим в ближайшее время.")
+        text = msg["text"].strip()
+
+        if text == "/getchatid":
+            send_message(chat_id, f"Chat ID этого чата: {chat_id}")
+        else:
+            send_message(chat_id, f"Я пока тестовый бот. Скоро меня доработают.")
+
     return "ok", 200
 
 @app.route("/")
