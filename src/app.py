@@ -30,7 +30,7 @@ def ask_deepseek(question):
         "stream": False
     }
     try:
-        r = requests.post("https://api.deepseek.com/v1/chat/completions", headers=headers, json=data, timeout=30)
+        r = requests.post("https://api.deepseek.com/v2/chat/completions", headers=headers, json=data, timeout=30)
         return r.json()["choices"][0]["message"]["content"]
     except:
         return "⚠️ Ошибка связи с AI. Попробуйте позже."
