@@ -5,8 +5,8 @@ app = Flask(__name__)
 
 # ================= НАСТРОЙКИ =================
 BOT_TOKEN = "8782847447:AAFaOn42abfoCErNIFNmNYMy9Et8sbZ6OWs"  # ← вставь токен бота
-DEEPSEEK_API_KEY = "sk-780958c4d0ed46bf9c7c44ba52705a0b"             # ← вставь свой API-ключ DeepSeek
-GROUP_CHAT_ID = -5260784715             # ID нашей группы «Штаб Призрак»
+GROQ_API_KEY = "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"
+GROUP_CHAT_ID = -5260784715             # ID группы «Штаб Призрак»
 SYSTEM_PROMPT = "Ты — полезный AI-ассистент. Отвечай вежливо и по делу."
 # =============================================
 
@@ -19,21 +19,21 @@ def send_message(chat_id, text):
     except Exception as e:
         print(f"Send error: {e}")
 
-def ask_deepseek(question):
+def ask_groq(question):
     headers = {
-        "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
+        "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
     data = {
-        "model": "deepseek-chat",
+        "model": "llama3-8b-8192",  # быстрая и бесплатная модель
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": question}
         ],
-        "stream": False
+        "temperature": 0.7
     }
     try:
-        r = requests.post("https://api.deepseek.com/v1/chat/completions",
+        r = requests.post("https://api.groq.com/openai/v1/chat/completions",
                          headers=headers, json=data, timeout=30)
         if r.status_code == 200:
             return r.json()["choices"][0]["message"]["content"]
@@ -55,7 +55,7 @@ def webhook():
 
     if chat_id > 0:  # Личное сообщение боту
         clients[username] = chat_id
-        answer = ask_deepseek(text)  # ← Здесь я отвечаю через API
+        answer = ask_groq(text)  # ← отвечает через Groq
         send_message(chat_id, answer)
         send_message(GROUP_CHAT_ID, f"📩 @{username}: {text}\n🤖 Бот: {answer}")
 
