@@ -4,8 +4,9 @@ from flask import Flask, request
 app = Flask(__name__)
 
 # ================= НАСТРОЙКИ =================
-BOT_TOKEN = "8782847447:AAFaOn42abfoCErNIFNmNYMy9Et8sbZ6OWs"  # ← ВСТАВЬ СВОЙ ТОКЕН БОТА
-DEEPSEEK_API_KEY = "sk-225628b2abe34ac9af08fdca94d81c0c"             # ← ВСТАВЬ СВОЙ API-КЛЮЧ DEEPSEEK
+BOT_TOKEN = "8782847447:AAFaOn42abfoCErNIFNmNYMy9Et8sbZ6OWs
+"  # ← вставь токен бота
+DEEPSEEK_API_KEY = "sk-780958c4d0ed46bf9c7c44ba52705a0b"             # ← вставь свой API-ключ DeepSeek
 GROUP_CHAT_ID = -5260784715             # ID нашей группы «Штаб Призрак»
 SYSTEM_PROMPT = "Ты — полезный AI-ассистент. Отвечай вежливо и по делу."
 # =============================================
@@ -14,7 +15,10 @@ clients = {}
 
 def send_message(chat_id, text):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    requests.post(url, json={"chat_id": chat_id, "text": text}, timeout=10)
+    try:
+        requests.post(url, json={"chat_id": chat_id, "text": text}, timeout=10)
+    except Exception as e:
+        print(f"Send error: {e}")
 
 def ask_deepseek(question):
     headers = {
@@ -30,10 +34,14 @@ def ask_deepseek(question):
         "stream": False
     }
     try:
-        r = requests.post("https://api.deepseek.com/v2/chat/completions", headers=headers, json=data, timeout=30)
-        return r.json()["choices"][0]["message"]["content"]
-    except:
-        return "⚠️ Ошибка связи с AI. Попробуйте позже."
+        r = requests.post("https://api.deepseek.com/v1/chat/completions",
+                         headers=headers, json=data, timeout=30)
+        if r.status_code == 200:
+            return r.json()["choices"][0]["message"]["content"]
+        else:
+            return f"Ошибка API (код {r.status_code}): {r.text[:100]}"
+    except Exception as e:
+        return f"Сетевая ошибка: {str(e)}"
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
