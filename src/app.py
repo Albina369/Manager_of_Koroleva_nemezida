@@ -4,8 +4,7 @@ from flask import Flask, request
 app = Flask(__name__)
 
 # ================= НАСТРОЙКИ =================
-BOT_TOKEN = "8782847447:AAFaOn42abfoCErNIFNmNYMy9Et8sbZ6OWs
-"  # ← вставь токен бота
+BOT_TOKEN = "8782847447:AAFaOn42abfoCErNIFNmNYMy9Et8sbZ6OWs"  # ← вставь токен бота
 DEEPSEEK_API_KEY = "sk-780958c4d0ed46bf9c7c44ba52705a0b"             # ← вставь свой API-ключ DeepSeek
 GROUP_CHAT_ID = -5260784715             # ID нашей группы «Штаб Призрак»
 SYSTEM_PROMPT = "Ты — полезный AI-ассистент. Отвечай вежливо и по делу."
