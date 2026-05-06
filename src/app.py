@@ -25,7 +25,7 @@ def ask_groq(question):
         "Content-Type": "application/json"
     }
     data = {
-        "model": "llama3-8b-8192",  # быстрая и бесплатная модель
+        "model": "llama-3.1-8b-instant",  # ← актуальная бесплатная модель
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": question}
